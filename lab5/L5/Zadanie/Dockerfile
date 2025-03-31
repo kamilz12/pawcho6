@@ -1,17 +1,25 @@
-# Etap 1: Build aplikacji node.js
+# syntax=docker/dockerfile:1.3-labs
+
 FROM node:18-alpine AS builder
 
 ARG VERSION
 ENV VERSION=$VERSION
 
+RUN apk update && apk add --no-cache git openssh-client
+
 WORKDIR /app
 
-COPY package.json ./
-COPY app.js ./
+RUN mkdir -p /root/.ssh && ssh-keyscan github.com >> /root/.ssh/known_hosts
+
+#change me
+RUN --mount=type=ssh git clone git@github.com:your_github_name/pawcho6.git /tmp/pawcho6
+
+RUN cp -r /tmp/pawcho6/lab5/L5/Zadanie/* /app/
+
+RUN ls -la /app
 
 RUN npm install
 
-# Etap 2: Uruchomienie aplikacji w kontenerze
 FROM nginx:alpine
 
 ARG VERSION
